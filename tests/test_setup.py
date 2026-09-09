@@ -28,13 +28,46 @@ class SetupTests(unittest.TestCase):
                  patch.object(installer.subprocess, 'check_output', return_value='v22.19.0\n'), \
                  patch.object(installer.subprocess, 'run') as run:
                 installer.main()
-            self.assertEqual(run.call_count, 3)
+            self.assertEqual(run.call_count, 4)
             self.assertIn(str(root / '.local/share/pi-dev'), run.call_args_list[0].args[0])
-            for call in run.call_args_list[1:]:
+            for call in run.call_args_list[1:3]:
                 self.assertEqual(call.kwargs['env']['PI_CODING_AGENT_DIR'], str(root / '.pi/agent'))
                 self.assertEqual(call.args[0][1], 'install')
             self.assertTrue((root / '.local/bin/pi').is_symlink())
             self.assertTrue((root / '.pi/agent/settings.json').exists())
+            self.assertIn('pi-agent-setup PATH', (root / '.bashrc').read_text())
+
+    def test_update_preserves_old_launcher_shell_content_and_is_idempotent(self):
+        installer = load_script('install')
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            launcher = root / '.local/bin/pi'
+            launcher.parent.mkdir(parents=True)
+            launcher.write_text('old Pi launcher')
+            (root / '.bashrc').write_text('export MY_SETTING=original\n')
+            binary = root / '.local/share/pi-dev/node_modules/.bin/pi'
+            installer.activate_runtime(root, binary)
+            backups = list((root / '.pi/agent/backups').iterdir())
+            self.assertEqual(len(backups), 1)
+            self.assertEqual((backups[0] / '.local/bin/pi').read_text(), 'old Pi launcher')
+            self.assertEqual((backups[0] / '.bashrc').read_text(), 'export MY_SETTING=original\n')
+            self.assertEqual(launcher.resolve(), binary.resolve())
+            self.assertIn('export MY_SETTING=original', (root / '.bashrc').read_text())
+            installer.activate_runtime(root, binary)
+            self.assertEqual(len(list((root / '.pi/agent/backups').iterdir())), 1)
+            self.assertEqual((root / '.bashrc').read_text().count('# >>> pi-agent-setup PATH >>>'), 1)
+
+    def test_shell_symlink_is_not_overwritten(self):
+        installer = load_script('install')
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = root / 'managed-dotfile'
+            source.write_text('custom shell settings')
+            (root / '.bashrc').symlink_to(source)
+            with self.assertRaises(ValueError):
+                installer.activate_runtime(root, root / 'binary')
+            self.assertEqual(source.read_text(), 'custom shell settings')
+            self.assertFalse((root / '.local/bin/pi').exists())
 
     def test_merge_backup_auth_and_idempotence(self):
         installer = load_script('install')

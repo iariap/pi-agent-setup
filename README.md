@@ -25,7 +25,7 @@ Opciones del instalador se pasan con `bash -s --`. Por ejemplo, para revisar los
 gh api --hostname github.com repos/iariap/pi-agent-setup/contents/install.sh -H 'Accept: application/vnd.github.raw+json' | bash -s -- --dry-run
 ```
 
-También admite `--config-only` y `--root /otro/home`. El bootstrap necesita Bash,
+También admite `--config-only`, `--no-shell-config` y `--root /otro/home`. El bootstrap necesita Bash,
 GitHub CLI autenticado, Python 3, tar y mktemp; la instalación completa necesita Node/npm
 según los requisitos de abajo. Descarga el repo a un temporal, ejecuta el instalador y
 limpia ese temporal al terminar. No requiere un clon permanente ni cambia la raíz:
@@ -48,13 +48,22 @@ export PATH="$HOME/.local/bin:$PATH"
 pi
 ```
 
-Agregá esa línea de PATH a tu configuración de shell si querés conservarla. No uses `sudo`. **La raíz es el home del usuario que ejecuta el instalador**, resuelto con `Path.home()`; no depende del directorio del clon ni contiene un nombre de usuario fijo. Los destinos son:
+El instalador configura PATH en `.profile`, `.bashrc` y `.zshrc`; la línea `export` del ejemplo activa el cambio también en la terminal actual. Usá `--no-shell-config` si administrás tus dotfiles con otra herramienta o usás otro shell. No uses `sudo`. **La raíz es el home del usuario que ejecuta el instalador**, resuelto con `Path.home()`; no depende del directorio del clon ni contiene un nombre de usuario fijo. Los destinos son:
 
 - `~/.local/share/pi-dev`: instalación aislada de Pi.
-- `~/.local/bin/pi`: acceso al ejecutable; no pisa otro ejecutable existente.
+- `~/.local/bin/pi`: acceso al ejecutable; si hay un launcher anterior se respalda antes de reemplazarlo.
 - `~/.pi/agent/settings.json`: configuración global de tu usuario.
 - `~/.pi/agent/agents/*.md`: agentes personalizados.
 - `~/.pi/agent/backups/pi-agent-setup-<fecha>`: respaldo de cada archivo modificado y manifiesto de archivos previamente inexistentes.
+- `~/.pi/agent/backups/pi-runtime-<fecha>`: respaldo del launcher y archivos de shell modificados, con rutas relativas al home en el manifiesto.
+
+### Si Pi ya está instalado
+
+**Ejecutá el mismo comando de instalación.** Instala o actualiza la copia administrada a las versiones de `config/versions.json`, instala las extensiones fijadas y vuelve a aplicar los agentes y modelos del perfil. Si había otra versión más nueva, también converge a estas versiones probadas: no sigue `latest` automáticamente.
+
+La instalación administrada queda primera en PATH para nuevas terminales Bash/Zsh. Las instalaciones anteriores en otros directorios no se desinstalan. Las credenciales, sesiones y ajustes ajenos al perfil se conservan. Los bloques de PATH y paquetes administrados no se duplican al repetir el comando; los cambios locales en campos/agentes administrados se respaldan y reemplazan por el perfil.
+
+Abrí una terminal nueva o ejecutá `~/.local/bin/pi` para usarla inmediatamente. Un script ejecutado por pipe no puede cambiar el entorno de la terminal padre. Si tenés un alias o una función llamada `pi`, o un gestor que modifica PATH después de estos archivos, verificá con `type -a pi`; el ejecutable absoluto siempre selecciona esta instalación.
 
 Si ya tenés Pi y las extensiones compatibles instaladas, podés aplicar sólo el perfil:
 
@@ -164,6 +173,8 @@ Para validar el perfil: usar 20–30 tareas representativas, misma revisión ini
 `config/settings.json` es una exportación permitida de campos del perfil, no una copia completa de la cuenta. No contiene claves, sesiones, memoria, registros ni el cache del catálogo. La instalación preserva ajustes y extensiones ajenos al perfil. Reemplaza sólo campos de roles administrados, incluso sus overrides por proveedor que de otro modo anularían los modelos elegidos; el respaldo permite recuperar la configuración previa.
 
 Para restaurar, cerrá Pi, consultá `manifest.json` en el respaldo y copiá los archivos con `existed: true` sobre sus rutas relativas dentro de `~/.pi/agent`. Los marcados `existed: false` fueron creados por la instalación: retiralos sólo si no tienen cambios posteriores que quieras conservar. Esto revierte archivos de configuración, no desinstala binarios o dependencias descargadas.
+
+Los respaldos `pi-runtime-*` usan un manifiesto distinto, con `relative_to: user home`: sus rutas se restauran respecto del home, preservando enlaces simbólicos. Si un archivo de inicio del shell es un symlink, el instalador se detiene antes de cambiarlo y permite optar por `--no-shell-config`.
 
 Los prompts de sólo lectura son instrucciones de comportamiento: una herramienta `bash` puede escribir si no hay controles adicionales. Esta distribución no instala un sandbox ni debe describirse como tal. No se añaden fallbacks automáticos a modelos caros. Actualizá versiones y modelos en una rama y repetí la evaluación antes de adoptar otro `latest`.
 
