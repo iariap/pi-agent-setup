@@ -10,13 +10,13 @@ El repositorio es público y se instala desde cualquier equipo con Bash, curl, P
 tar y mktemp:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/iariap/pi-agent-setup/main/install.sh | bash
+curl -fsSL https://github.com/iariap/pi-agent-setup/raw/refs/heads/main/install.sh | bash
 ```
 
 Opciones del instalador se pasan con `bash -s --`. Por ejemplo, para revisar los destinos:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/iariap/pi-agent-setup/main/install.sh | bash -s -- --dry-run
+curl -fsSL https://github.com/iariap/pi-agent-setup/raw/refs/heads/main/install.sh | bash -s -- --dry-run
 ```
 
 También admite `--config-only`, `--no-shell-config` y `--root /otro/home`. El bootstrap necesita Bash,
@@ -29,7 +29,7 @@ Para una revisión reproducible, usá un SHA en ambas descargas:
 
 ```bash
 export PI_SETUP_REF=SHA_DEL_COMMIT
-curl -fsSL https://raw.githubusercontent.com/iariap/pi-agent-setup/$PI_SETUP_REF/install.sh | bash
+curl -fsSL https://github.com/iariap/pi-agent-setup/raw/$PI_SETUP_REF/install.sh | bash
 ```
 
 El script descarga el mismo `PI_SETUP_REF` como archivo tar. No guarda tokens en archivos.
