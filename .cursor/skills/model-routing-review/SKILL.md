@@ -10,7 +10,7 @@ Review the model allocation before changing `config/settings.json`. Optimize for
 ## Evidence hierarchy
 
 1. **Local evaluation data**: accepted tasks, retries, tests, regressions, wall time, cache use, and human correction time. This decides the change.
-2. **Independent, comparable benchmarks**: prefer evaluations that test the exact model/version and relevant agentic coding work. Record benchmark date, methodology, model effort setting, and whether a score is measured or estimated.
+2. **Independent, comparable benchmarks**: use as many relevant evaluations as available, up to ten. Prefer tests that cover the exact model/version and relevant agentic coding work. Record benchmark date, methodology, model effort setting, and whether a score is measured or estimated.
 3. **Current provider data**: pricing, context/output limits, availability, and structured-output/tool support. Use it for operational facts and cost calculations, never as proof of quality.
 4. **User reports**: identify possible failure modes or harness interactions. Label them anecdotal; never average votes or treat them as performance data.
 5. **Vendor benchmarks and model cards**: background only. Do not use them as the sole evidence for a capability claim.
@@ -37,6 +37,25 @@ For every candidate, collect:
 - Price per million input, output, and cache tokens from the provider actually used by Pi. Record promotional and list prices separately.
 - Availability/latency only when it affects the developer workflow.
 - At least two recent user reports when there is enough discussion. State the sample bias and disagreements.
+
+Select up to ten independent benchmarks across these dimensions, favoring direct evidence over breadth for its own sake:
+
+1. Terminal or repository-level coding agents.
+2. Software engineering issue resolution.
+3. Tool use and multi-step automation.
+4. Realistic knowledge work or planning.
+5. Instruction following and constrained output.
+6. Long-context retrieval and reasoning.
+7. Hallucination or faithfulness.
+8. Debugging and scientific/code reasoning.
+9. Security or data-integrity reasoning when the project needs it.
+10. A domain-relevant benchmark, when one exists.
+
+For each benchmark, state whether it is independent, its task type, the exact setting
+tested, score direction, and why it matters to the role under review. Do not average
+unrelated scores into a homemade leaderboard. If fewer than ten valid comparisons exist,
+report the smaller set and name the gaps. If a benchmark covers an obsolete model, a
+different effort level, or a non-comparable provider variant, exclude it and explain why.
 
 Reject an apparent comparison when settings differ materially or only vendor evidence exists. Mark missing evidence as unknown rather than inferring it.
 
