@@ -161,6 +161,16 @@ El multiplicador prueba sensibilidad a la verbosidad, no estima automáticamente
 
 ## Prestaciones y calidad de la evidencia
 
+### Revisión periódica de modelos
+
+El skill [`model-routing-review`](.cursor/skills/model-routing-review/SKILL.md) contiene el
+proceso para revisar el perfil periódicamente. Prioriza telemetría propia y benchmarks
+independientes, separa evidencia medida de estimaciones y opiniones, y exige proponer un
+diff reversible antes de cambiar la configuración. Usalo cuando cambie la tarifa o
+disponibilidad de un proveedor, bajen las tareas aceptadas sin corrección, o se acumulen
+fallos repetidos. Para cambiar el modelo por defecto, `worker`, `planner` o `reviewer`,
+requiere una evaluación local completa de 20–30 tareas comparables.
+
 Artificial Analysis v4.3 reporta GLM Flash 42 y Sol max 47 en su índice; Terminal-Bench v4 33%/40% y SciCode 52%/57%. El costo ponderado por tarea es 0,25/1,99 USD; GLM produce más salida (69k frente a 29k por tarea). Esto respalda probar GLM como ejecutor económico, pero el índice no mide este harness ni planificación por rol. **Sol max no es el Sol high configurado en planner/reviewer.** No se extrapola su resultado a esos agentes. [Evaluación independiente](https://artificialanalysis.ai/models/comparisons/glm-5-3-flash-vs-gpt-5-6-sol).
 
 Experiencias públicas señalan degradación de GLM en conversaciones largas y verificaciones afirmadas sin evidencia. El debate high/max es contradictorio. Usuarios de Sol reportan sobreingeniería en tareas abiertas. Son testimonios con sesgo de selección, distintos modelos/proveedores y sin control experimental; sirven para definir fallos a observar, no para prometer ahorros. [GLM: sesiones largas](https://www.reddit.com/r/LocalLLaMA/comments/1w2germ/glm53flash_is_100_a_step_change_in_agential/), [GLM: high/max](https://www.reddit.com/r/ZaiGLM/comments/1w0cfrj/psa_you_must_use_glm53flash_in_max_reasoning_mode/), [Sol: sobreingeniería](https://www.reddit.com/r/codex/comments/1uuo6x4/how_to_keep_gpt56_sol_high_from_overengineering/).
