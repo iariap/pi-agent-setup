@@ -20,20 +20,14 @@ class BootstrapTests(unittest.TestCase):
             with tarfile.open(archive, 'w:gz') as stream:
                 for name in ['scripts', 'config', 'agents']:
                     stream.add(REPO / name, arcname='snapshot/' + name)
-            stub = tools / 'gh'
+            stub = tools / 'curl'
             stub.write_text('''#!/usr/bin/env python3
 import os, sys
-if sys.argv[1] == 'auth':
-    sys.exit(0)
-if any('/commits/' in a for a in sys.argv):
-    print('a' * 40)
-elif any('/tarball/' in a for a in sys.argv):
-    if os.environ.get('FAIL_DOWNLOAD') == 'yes':
-        sys.exit(22)
-    with open(os.environ['TEST_ARCHIVE'], 'rb') as f:
-        sys.stdout.buffer.write(f.read())
-else:
-    sys.exit(2)
+if os.environ.get('FAIL_DOWNLOAD') == 'yes':
+    sys.exit(22)
+output = sys.argv[sys.argv.index('--output') + 1]
+with open(os.environ['TEST_ARCHIVE'], 'rb') as source, open(output, 'wb') as destination:
+    destination.write(source.read())
 ''')
             stub.chmod(0o755)
             home = root / 'user home'
