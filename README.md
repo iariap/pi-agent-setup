@@ -4,6 +4,39 @@ Perfil personal reproducible de Pi Coding Agent y pi-subagents, capturado el **9
 
 ## Instalación
 
+### Instalación en una línea
+
+El repositorio es privado: una URL anónima de `raw.githubusercontent.com` no permite
+descargarlo. Autenticá GitHub CLI con `gh auth login --hostname github.com` y ejecutá:
+
+```bash
+gh api --hostname github.com repos/iariap/pi-agent-setup/contents/install.sh -H 'Accept: application/vnd.github.raw+json' | bash
+```
+
+Equivalente usando HTTPS y `curl`, aprovechando la autenticación guardada de GitHub CLI:
+
+```bash
+curl -fsSL -H "Authorization: Bearer $(gh auth token --hostname github.com)" -H 'Accept: application/vnd.github.raw+json' 'https://api.github.com/repos/iariap/pi-agent-setup/contents/install.sh?ref=main' | bash
+```
+
+Opciones del instalador se pasan con `bash -s --`. Por ejemplo, para revisar los destinos:
+
+```bash
+gh api --hostname github.com repos/iariap/pi-agent-setup/contents/install.sh -H 'Accept: application/vnd.github.raw+json' | bash -s -- --dry-run
+```
+
+También admite `--config-only` y `--root /otro/home`. El bootstrap necesita Bash,
+GitHub CLI autenticado, Python 3, tar y mktemp; la instalación completa necesita Node/npm
+según los requisitos de abajo. Descarga el repo a un temporal, ejecuta el instalador y
+limpia ese temporal al terminar. No requiere un clon permanente ni cambia la raíz:
+por defecto siempre usa el home del usuario actual.
+
+Para una revisión reproducible, usá el mismo SHA en el parámetro `?ref=SHA` de la
+descarga inicial y en `PI_SETUP_REF=SHA bash`. El bootstrap resuelve la referencia a un
+commit antes de bajar el archivo completo. No publica el repo ni guarda tokens en archivos.
+
+### Instalación desde un clon
+
 Requisitos: Linux o macOS (WSL en Windows), Git, Python 3.9+, Node.js 22.19.0+ y npm. Para clonar el repo privado necesitás autenticar GitHub CLI o Git con tu propia cuenta.
 
 ```bash
