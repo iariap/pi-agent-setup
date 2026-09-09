@@ -1,0 +1,81 @@
+{
+  "defaultProvider": "openrouter",
+  "defaultModel": "z-ai/glm-5.3-flash",
+  "defaultThinkingLevel": "medium",
+  "subagents": {
+    "agentOverrides": {
+      "worker": {
+        "model": "openrouter/z-ai/glm-5.3-flash",
+        "thinking": "high",
+        "description": "Default implementation agent. Implement scoped plans, validate affected behavior, stop when acceptance criteria pass.",
+        "defaultContext": "fresh",
+        "fast": false
+      },
+      "delegate": {
+        "model": "openrouter/z-ai/glm-5.3-flash",
+        "thinking": "medium",
+        "description": "Economical general agent for bounded tasks, simple plans and routine reviews. Prefer this over frontier agents for low-risk work.",
+        "defaultContext": "fresh",
+        "fast": false
+      },
+      "scout": {
+        "model": "openrouter/z-ai/glm-5.3-flash",
+        "thinking": "low",
+        "description": "Cheap, focused repository reconnaissance. Return relevant paths and evidence, not full file dumps.",
+        "defaultContext": "fresh",
+        "fast": false
+      },
+      "coder": {
+        "model": "openrouter/z-ai/glm-5.3-flash",
+        "thinking": "high",
+        "description": "Default implementation agent for bounded changes. Make small diffs and validate acceptance criteria.",
+        "defaultContext": "fresh",
+        "fast": false
+      },
+      "pathfinder": {
+        "model": "openrouter/z-ai/glm-5.3-flash",
+        "thinking": "high",
+        "description": "Investigate one concrete failure hypothesis. Return evidence and the next test; escalate unresolved conflicting hypotheses to oracle.",
+        "defaultContext": "fresh",
+        "fast": false
+      },
+      "tester": {
+        "model": "openrouter/z-ai/glm-5.3-flash",
+        "thinking": "low",
+        "description": "Run specified targeted checks and report actual results. Use a per-run high thinking override for test design or complex failure analysis.",
+        "defaultContext": "fresh",
+        "fast": false
+      },
+      "synthesizer": {
+        "model": "openrouter/z-ai/glm-5.3-flash",
+        "thinking": "medium",
+        "description": "Consolidate supplied findings concisely, preserve evidence and uncertainty. Escalate consequential unresolved contradictions to oracle.",
+        "defaultContext": "fresh",
+        "fast": false
+      },
+      "planner": {
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "description": "Frontier planning for complex, ambiguous or high-risk work only. Skip for small changes; use worker or delegate. Return a short verifiable plan; use xhigh per-run for hard architecture or migrations.",
+        "defaultContext": "fresh",
+        "fast": false
+      },
+      "reviewer": {
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "high",
+        "description": "Frontier review for complex or high-risk diffs and plans only. Use delegate for routine reviews. Review acceptance criteria, affected code and test evidence; use xhigh per-run for auth, permissions or critical data changes.",
+        "defaultContext": "fresh",
+        "fast": false
+      },
+      "oracle": {
+        "model": "openai-codex/gpt-5.6-sol",
+        "thinking": "xhigh",
+        "description": "Rare frontier escalation for consequential decisions, conflicting evidence or repeated failed diagnoses. Bounded advisory analysis; not a routine workflow step.",
+        "defaultContext": "fresh",
+        "fast": false
+      }
+    },
+    "defaultModel": "openrouter/z-ai/glm-5.3-flash",
+    "defaultThinking": "medium"
+  }
+}

@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+auth.json
+models-store.json
+sessions/
+backups/
+node_modules/
+__pycache__/
+*.pyc
+*.log
+.DS_Store
