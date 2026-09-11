@@ -132,7 +132,7 @@ def apply_config(root):
     changes.update({destination / 'agents' / f.name: f.read_text()
                     for f in sorted((REPO / 'agents').glob('*.md'))})
     changed = {p: content for p, content in changes.items()
-               if not p.exists() or p.read_text() != content}
+               if not p.exists() or p.read_bytes() != content.encode('utf-8')}
     if not changed:
         print('Configuration already matches; no files changed.')
         return None
