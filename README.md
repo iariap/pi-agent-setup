@@ -100,6 +100,38 @@ Los agentes `worker`, `delegate` y `oracle` provienen de pi-subagents. Los otros
 
 La configuración sólo orienta la selección mediante nombres y descripciones. **No es un clasificador de complejidad ni un límite duro de gasto.** Una invocación explícita de `planner` o `reviewer` usa Sol aunque la tarea sea simple. Overrides por ejecución y por proyecto también pueden cambiar el resultado.
 
+## Uso de los agentes
+
+En Pi los roles se invocan en lenguaje natural; el agente principal delega con `subagent` según la descripción, y también podés nombrar al rol explícitamente para forzar la elección:
+
+```text
+# Reconocimiento barato (GLM low)
+"Usá scout para mapear dónde se maneja la autenticación en este repo; devolvé rutas y evidencia."
+
+# Implementación acotada (GLM high)
+"Coder: corregí el manejo de timeout en scripts/install.py con un diff chico y validá con los tests."
+
+# Validación literal (GLM low)
+"Tester: corré python3 -m unittest discover tests y reportá la salida exacta."
+
+# Diagnóstico de una hipótesis (GLM high, sólo lectura + comandos)
+"Pathfinder: verificá esta hipótesis — el fallo viene del cache del catálogo de modelos — con evidencia."
+
+# Consolidación (GLM medium)
+"Synthesizer: uní los hallazgos de scout y pathfinder en un diagnóstico con confianza y próximos pasos."
+
+# Planificación de frontera (Sol high, sólo cuando lo justifica)
+"Planner: planificá la migración del esquema de sesiones; devolvé un plan verifiable por pasos."
+
+# Revisión de frontera (Sol high)
+"Reviewer: revisá este diff de permisos; aceptación, código afectado y evidencia de tests."
+
+# Escalación excepcional (Sol xhigh)
+"Dos corridas de pathfinder se contradicen sobre la causa raíz: consultale a oracle para arbitrar."
+```
+
+Overrides por ejecución sin editar archivos: pedirlo en el prompt ("usá tester con thinking high para diseñar los casos") o pasar `model`/`thinking` en la invocación de `subagent`. Los flujos recomendados están en la sección siguiente.
+
 ## Por qué funciona esta distribución
 
 Implementar un contrato claro suele requerir menos razonamiento abierto que decidir qué construir, resolver una migración o detectar una falla de autorización. El modelo económico recibe pasos verificables; el modelo de frontera recibe la incertidumbre que justifica su costo. Un modelo más caro no garantiza mejores resultados y dos agentes pueden compartir el mismo error: el cierre depende de pruebas y evidencia.
@@ -208,6 +240,21 @@ python3 scripts/install_opencode.py --dry-run
 python3 scripts/install_opencode.py
 opencode run "Hola"   # corre en GLM; roles vía @mention: @planner, @reviewer, @oracle...
 ```
+
+Uso de los agentes en OpenCode (Tab cambia entre agentes primarios; los subagentes se invocan con @mention, y el agente primario también delega automáticamente según la descripción):
+
+```text
+@scout mapeá dónde se maneja la autenticación; devolvé rutas y evidencia.
+@coder corregí el timeout en install.py con un diff chico y validá con los tests.
+@tester corré python3 -m unittest discover tests y reportá la salida exacta.
+@pathfinder verificá esta hipótesis sobre el fallo del catálogo de modelos.
+@synthesizer uní los hallazgos de scout y pathfinder en un diagnóstico.
+@planner planificá la migración del esquema de sesiones en pasos verificables.
+@reviewer revisá este diff de permisos: aceptación, código afectado y evidencia.
+@oracle arbitrá esta contradicción entre diagnósticos y recomendá el próximo paso.
+```
+
+La variante de razonamiento quedó fijada por agente en el frontmatter (`variant`). Para subir el esfuerzo en una corrida puntual (p. ej. `tester` a `high` para diseñar casos, `planner`/`reviewer` a `xhigh` para permisos o migraciones), cambiá el modelo/variante en la sesión con `/models` y el ciclo de variantes, o editá el `variant` del agente antes de la corrida.
 
 Diferencias respecto al perfil de Pi, por ahora:
 
