@@ -194,3 +194,23 @@ python3 -m unittest discover -s tests -v
 ```
 
 Fuentes de funcionamiento: [Pi](https://pi.dev/), [selección de modelos en pi-subagents](https://github.com/nicobailon/pi-subagents/blob/main/docs/models.md), [definición de agentes](https://github.com/nicobailon/pi-subagents/blob/main/docs/agents.md). La lógica de instalación usa las versiones fijadas; documentación upstream puede cambiar.
+
+## Perfil equivalente para OpenCode
+
+El directorio [`opencode/`](opencode/) replica el perfil de enrutamiento para [OpenCode](https://opencode.ai) (probado con 1.2.21): mismo modelo ejecutor, mismos roles y misma política de reservar Sol para decisiones y revisión.
+
+- `opencode/opencode.json`: modelo por defecto `openrouter/z-ai/glm-5.3-flash` y variantes de razonamiento explícitas (`low/medium/high` para GLM, `high/xhigh` para Sol vía OpenRouter). Las variantes son el equivalente de los niveles de thinking de Pi.
+- `opencode/agents/*.md`: los nueve roles con modelo, variante y permisos equivalentes (`coder`, `delegate`, `scout`, `tester`, `pathfinder`, `synthesizer`, `planner`, `reviewer`, `oracle`). Sobreescribe el `scout` integrado de OpenCode, que cumple el mismo rol.
+- `scripts/install_opencode.py`: instala con merge no destructivo sobre `~/.config/opencode/` (preserva proveedores locales y otros campos propios), con backup automático y soporte `--dry-run`.
+
+```bash
+python3 scripts/install_opencode.py --dry-run
+python3 scripts/install_opencode.py
+opencode run "Hola"   # corre en GLM; roles vía @mention: @planner, @reviewer, @oracle...
+```
+
+Diferencias respecto al perfil de Pi, por ahora:
+
+- **Sol corre por OpenRouter API, no por la suscripción Codex.** OpenCode no expone `gpt-5.6-sol` por el proveedor `openai` con OAuth (verificado con `opencode models`), así que `planner`, `reviewer` y `oracle` usan `openrouter/openai/gpt-5.6-sol`: tarifa por token (USD 2/10 promocional, 4/20 lista al 10/9/2026). Se consume solo en esos tres roles. Si una versión futura de OpenCode lo expone vía OAuth, conviene volver a esa vía y re-verificar la variante `xhigh`.
+- **No hay equivalentes a misiones, schedules ni escalación automática a `oracle`** de pi-subagents: en OpenCode la escalación es decisión del agente primario o del usuario vía `@oracle`.
+- **Sin evaluación local**: las mismas advertencias del perfil de Pi aplican; antes de mover `coder` o los roles de Sol, corregir la evaluación de 20–30 tareas.
